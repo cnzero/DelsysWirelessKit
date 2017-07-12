@@ -47,8 +47,14 @@ classdef DelsysM <  handle
 			end
 			try
 				data = cast(fread(obj.interfaceObjects{2}, bytesReady), 'uint8');
-				obj.dataEMG = typecast(data, 'single');
-				% ---=== notify to save 
+				dataEMG = typecast(data, 'single');
+				% -- channel selection
+				dataEMG = reshape(dataEMG, 16, []); % - points in one row from the same sEMG channel
+											% - Dimension explanation
+											% - 1st, channel number
+											% - 2nd, a row vector of sequence depending on time
+				obj.dataEMG = dataEMG(obj.chEMG, :);
+
 				obj.notify('eventEMGChanged');
 			catch error
 				disp('Connection error or tcpip object has been closed.');
@@ -66,7 +72,17 @@ classdef DelsysM <  handle
 			end
 			try
 				data = cast(fread(obj.interfaceObjects{3}, bytesReady), 'uint8');
-				obj.dataACC = typecast(data, 'single');
+				dataACC = typecast(data, 'single');
+				% -- channel selection - bit complex for x-y-z axis
+				dataACC = reshape(dataACC, 16, 3, []); % - points in one row from the same IMU channel
+											% - 1st, channel number
+											% - 2nd, x=1, y=2, z=3
+											% - 3rd, a row vector of sequence depending on time. 
+				obj.dataACC = dataACC(obj.chACC, :, :); % Detailed description to read [docDelsysM.md]
+
+				% so, all point of a channel on an axis at a period of all time
+				% d = obj.dataACC(x, ch, :)
+
 				obj.notify('eventACCChanged');
 			catch error
 				disp('Connection error or tcpip object has been closed.');
@@ -97,7 +113,6 @@ classdef DelsysM <  handle
 				obj.chACC = ACC;
 				try
 					fopen(obj.interfaceObjects{3});
-					
 				catch
 					error('Open ACC interface error.');
 				end
