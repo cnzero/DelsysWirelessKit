@@ -1,0 +1,33 @@
+function LINK = InitGHand(COM_Number)
+    existingSerial = instrfind('Port', ['COM', num2str(COM_Number)]);
+    if isempty(existingSerial)
+        disp('Serial Empty...');
+        try
+        	LINK = serial(['COM',num2str(COM_Number)], ...
+						  'BaudRate', 9600, ...
+						  'DataBits', 8, ...
+						  'Parity', 'None', ...
+						  'StopBits', 1, ...
+						  'FlowControl', 'None');
+			set(LINK, 'Terminator', 'CR/LF'); %set the terminator to carriage return.
+			fopen(LINK);
+			disp('Connect successfully.');
+        catch error
+        	disp('Make sure you have plug iLimb Hand hardware');
+        	LINK = [];
+        end
+    else
+        disp('Existing...');
+        fclose(existingSerial);
+        LINK = serial(['COM',num2str(COM_Number)], ...
+					  'BaudRate', 9600, ...
+					  'DataBits', 8, ...
+					  'Parity', 'None', ...
+					  'StopBits', 1, ...
+					  'FlowControl', 'None');
+		set(LINK, 'Terminator', 'CR/LF'); %set the terminator to carriage return.
+		fopen(LINK);
+		disp('Connect successfully.');
+    end
+    pause(0.5)
+end
