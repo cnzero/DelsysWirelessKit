@@ -8,6 +8,8 @@ classdef DelsysM <  handle
 		chEMG = []    % -- channel sequence of EMG
 		dataACC = []  % -- current tcpip cache
 		chACC = []    % -- channel sequence of ACC
+
+		statusBusy = 0
 	end
 
 	events
@@ -142,6 +144,7 @@ classdef DelsysM <  handle
 			end
 
 			disp('Success to start Delsys Hardware device.');
+			obj.statusBusy = 1;
 		end
 		function Stop(obj)
 			% -- close common interfaceObject
@@ -169,6 +172,7 @@ classdef DelsysM <  handle
 				end
 			end
 			disp('Success to stop tcpip Connection');
+			obj.statusBusy = 0;
 		end
 	end % -- [methods]
 end % -- [class]
