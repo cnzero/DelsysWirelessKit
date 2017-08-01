@@ -49,6 +49,9 @@ classdef ViewRPS < handle
 				T = 6;
 				if(length(obj.dataEmgStored) < T*2000*length(obj.model.chEMG))
 					obj.dataEmgStored = [obj.dataEmgStored, obj.model.dataEMG];
+					p = length(obj.dataEmgStored)/(T*2000*length(obj.model.chEMG));
+					uiProgress(obj.handles, p, 'r');
+
 				else
 					obj.dataEmgStored = [];
 					obj.flagEMGWrite2Files = 0;
@@ -186,9 +189,15 @@ function handles = InitFigure(obj)
 	for ch=1:nCh
 		handles.hAxesEMG(ch) = axes('Parent', handles.hPanelEMGAxes, ...
 									'Units', 'normalized', ...
-									'Position', [0.02 1-dWidth*ch 0.95 dWidth*0.85]);
+									'Position', [0.02 1-dWidth*ch 0.9 dWidth*0.86]);
 		handles.hPlotsEMG(ch) = plot(handles.hAxesEMG(ch), 0, '-y', 'LineWidth', 1);
 	end	
+	handles.hAxesProgress = axes('Parent', handles.hPanelEMGAxes, ...
+								 'Units', 'normalized', ...
+								 'Position', [0.96 0.03 0.02 0.95], ...
+								 'YLim', [0,1], ...
+								 'Title', 'Progress');
+	uiProgress(handles, 0, 'none');
 
 	% -- Level two: layout of [hPanelPictureBed]
 
@@ -255,7 +264,7 @@ function CellEditCallback_Motion(source, eventdata, obj)
 	if obj.model.statusBusy == 0
 		obj.model.Start(obj.handles.chSelect);
 	end
-
+	uiProgress(obj.handles, 0, 'none');
 	obj.handles = handles;
 end
 
@@ -291,4 +300,11 @@ function Callback_ButtonStartTrain(source, eventdata)
 	set(handles.hButtonStartTrain, 'String', 'RealTime Recognition');
 	set(handles.hButtonStartTrain, 'Enable', 'on');
 	obj.handles = handles;
+end
+
+function uiProgress(handles, p, color)
+	patch('Parent', handles.hAxesProgress, ...
+		  'XData', [0 1 1 0], ...
+		  'YData', [0 0 p p], ...
+		  'FaceColor', color);	
 end
