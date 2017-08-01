@@ -18,8 +18,10 @@ classdef ViewRPS < handle
 	methods
 		% -- Constructor
 		function obj = ViewRPS(modelObj)
+			addpath('../../Matlab');
 			obj.model = modelObj;
 			obj.handles = InitFigure(obj);
+			obj.Init_Folder();
 
 			obj.model.addlistener('eventEMGChanged', @obj.UpdateAxesEMG);
 			obj.model.addlistener('eventEMGChanged', @obj.Write2FilesEMG);
@@ -30,12 +32,12 @@ classdef ViewRPS < handle
 				if(length(obj.dataAxesEMG) < (32832/4))
 	        		obj.dataAxesEMG = [obj.dataAxesEMG, obj.model.dataEMG];
 	        	else
-	        		obj.dataAxesEMG = [obj.dataAxesEMG(length(obj.model.dataEMG)+1:end); ...
+	        		obj.dataAxesEMG = [obj.dataAxesEMG(length(obj.model.dataEMG)+1:end), ...
 	        						   obj.model.dataEMG];
 	        	end
 	        	for ch=1:min(length(obj.model.chEMG), 4)
 	        		% obj.dataEMG = dataEMG(obj.chEMG, :);	
-	        		plot(obj.hAxesEMG(ch), obj.dataAxesEMG(ch, :));
+	        		plot(obj.handles.hAxesEMG(ch), obj.dataAxesEMG(ch, :));
 	        		drawnow;
 	        	end
 			end
@@ -45,7 +47,7 @@ classdef ViewRPS < handle
 			if obj.flagEMGWrite2Files == 1
 				% - How much time sampling data are stored?
 				T = 6;
-				if(length(obj.dataEmgStored) < T*2000*length(obj.chEMG))
+				if(length(obj.dataEmgStored) < T*2000*length(obj.model.chEMG))
 					obj.dataEmgStored = [obj.dataEmgStored, obj.model.dataEMG];
 				else
 					obj.flagEMGWrite2Files = 0;
@@ -147,7 +149,7 @@ function handles = InitFigure(obj)
 							 'RowName', [], ...
 							 'ColumnName', [], ...
 							 'ColumnWidth', {30, 30, 30, 30}, ...
-							 'CellEditCallback', @CellEditCallback_Channel, ...
+							 'CellEditCallback', {@CellEditCallback_Channel, obj}, ...
 							 'ColumnEditable', [true, true, true, true]);
 	handles.hChannelCheckboxTable = hChannelCheckboxTable;
 
@@ -168,7 +170,7 @@ function handles = InitFigure(obj)
 								   'ColumnName', [], ...
 								   'ColumnWidth', {CW, CW, CW, CW, CW, CW}, ...
 								   'ColumnEditable', [true, false, true, false, true, false], ...
-								   'CellEditCallback', @CellEditCallback_Motion);
+								   'CellEditCallback', {@CellEditCallback_Motion, obj});
 	handles.hMotionCheckboxTable = hMotionCheckboxTable;
 	hButtonRealTime = uicontrol('Parent', hPanelParameters, ...
 								'Style', 'pushbutton', ...
@@ -195,7 +197,7 @@ function handles = InitFigure(obj)
 							  'Units', 'normalized', ...
 							  'Position', [0.01, 0.7, 0.9, 0.28], ...
 							  'String', 'Input User Name', ...
-							  'Callback', @callback_ClearUserNamePromption);
+							  'Callback', {@callback_ClearUserNamePromption, obj});
 
 
 	% -- Work Through Buttons
@@ -212,7 +214,7 @@ function handles = InitFigure(obj)
 									 'Units', 'normalized', ...
 									 'Position', [0.85 0.3 0.1 0.07], ...
 									 'String', 'Training Model', ...
-									 'Callback', @Callback_ButtonStartTrain);
+									 'Callback', {@Callback_ButtonStartTrain, obj});
 	handles.hButtonStartTrain = hButtonStartTrain; 
 
 	guidata(hFigure, handles);
@@ -220,24 +222,20 @@ function handles = InitFigure(obj)
 		varargout{1} = hFigure;
 	end
 end
-function callback_ClearUserNamePromption(source, eventdata)
-	handles = guidata(source);
-
-
-	% Updata handles structure
-	guidata(source, handles)
+function callback_ClearUserNamePromption(source, eventdata, obj)
 end
 
-function CellEditCallback_Channel(source, eventdata)
-	handles = guidata(source);
+function CellEditCallback_Channel(source, eventdata, obj)
+	handles = obj.handles;
 	trueValueChannel = cell2mat(handles.hChannelCheckboxTable.Data);
 	chSelect = find(reshape(trueValueChannel', 1, 16)==1);
+	handles.chSelect = chSelect;
 
-	guidata(source, handles)
+	obj.handles = handles;
 end
 
-function CellEditCallback_Motion(source, eventdata)
-	handles = guidata(source);
+function CellEditCallback_Motion(source, eventdata, obj)
+	handles = obj.handles;
 	trueValueMotion = cell2mat(handles.hMotionCheckboxTable.Data(:, 1:2:end));
 	strMotion = {'Snooze', 'Open', 'Grasp', ...
 				 'Index', 'Middle', 'Rock', ...
@@ -254,32 +252,32 @@ function CellEditCallback_Motion(source, eventdata)
 	hPicture = imread(['Pictures/', strSelected, '.jpg']);
 	imshow(hPicture, 'Parent', handles.hAxesPictureBed);
 
-	guidata(source, handles);
+	obj.handles = handles;
 end
 
 function Callback_ButtonRealTime(source, event, obj)
-	handles = guidata(source);
-	obj.flagEMGWrite2Files = ~(obj.flagAxesRefreshing);
+	handles = obj.handles;
+	obj.flagAxesRefreshing = ~(obj.flagAxesRefreshing);
 
-	guidata(source, handles);
+	obj.handles = handles;
 end
 
 function Callback_ButtonStartAcquire(source, eventdata, obj)
 	% - To acquire original sEMG data under the appointed labels
-	handles = guidata(source);
-	addpath('../../Matlab');
-	obj.model.Start([1,2,3]);
+	handles = obj.handles;
+	
+	obj.model.Start(handles.chSelect);
 	obj.flagEMGWrite2Files = 1;
 
 	% - only 8s samples are stored in the files. 
 	% - else, flagEMGWrite2Files = 0;
 
 
-	guidata(source, handles);
+	obj.handles = handles;
 end
 
 function Callback_ButtonStartTrain(source, eventdata)
-	handles = guidata(source);
+	handles = obj.handles;
 	set(handles.hButtonStartTrain, 'Enable', 'off');
 
 	pause(5);
@@ -290,5 +288,5 @@ function Callback_ButtonStartTrain(source, eventdata)
 
 	set(handles.hButtonStartTrain, 'String', 'RealTime Recognition');
 	set(handles.hButtonStartTrain, 'Enable', 'on');
-	guidata(source, handles);
+	obj.handles = handles;
 end
