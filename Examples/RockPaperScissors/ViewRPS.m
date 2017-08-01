@@ -50,6 +50,7 @@ classdef ViewRPS < handle
 				if(length(obj.dataEmgStored) < T*2000*length(obj.model.chEMG))
 					obj.dataEmgStored = [obj.dataEmgStored, obj.model.dataEMG];
 				else
+					obj.dataEmgStored = [];
 					obj.flagEMGWrite2Files = 0;
 					set(obj.handles.hButtonStartAcquire, 'String', 'Acquired Over');
 					dlmwrite([obj.folder_name, '\EMG\',obj.handles.strSelected, '.txt'], ...
@@ -247,10 +248,13 @@ function CellEditCallback_Motion(source, eventdata, obj)
 	c = eventdata.Indices(2);
 	strSelected = handles.hMotionCheckboxTable.Data{r,c+1};
 	handles.strSelected = strSelected;
-	set(handles.hButtonStartAcquire, 'String', 'To Acquire');
-
+	set(handles.hButtonStartAcquire, 'String', 'Ready To Acquire');
 	hPicture = imread(['Pictures/', strSelected, '.jpg']);
 	imshow(hPicture, 'Parent', handles.hAxesPictureBed);
+	obj.flagEMGWrite2Files = 0;
+	if obj.model.statusBusy == 0
+		obj.model.Start(obj.handles.chSelect);
+	end
 
 	obj.handles = handles;
 end
@@ -265,8 +269,6 @@ end
 function Callback_ButtonStartAcquire(source, eventdata, obj)
 	% - To acquire original sEMG data under the appointed labels
 	handles = obj.handles;
-	
-	obj.model.Start(handles.chSelect);
 	obj.flagEMGWrite2Files = 1;
 
 	% - only 8s samples are stored in the files. 
