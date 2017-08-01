@@ -6,6 +6,7 @@
 
 
 #### 关于 `figure`等的继承关系理解
+_错误的理解_
 需求场景，我在一个新开的figure内，创建了很多的控件，包括许多Edit，Buttons，以及Checkbox等等；中间也会使用panel用于布局层级摆放，而不是一下子把所有东西都直接摆放在母版figure上，这利于后期进行不同的调整。
 所以，代码如下：
 ```
@@ -29,6 +30,10 @@ hFigureRoot.hEditUserName = hEditUserName;
 而实际上想想，这一步就是多余的，或者这样做强制“扁平化”再建立他们之间的关系。因为在最初定义过程中使用了`parent`属性，就已经明确了两者的继承关系。那么实际来理解就是，对于`hEditUserName`而言，有两种途径access：
 1. 通过`parent`一步步继承的关系。
     `hFigureRoot.hFigure.hPanelParameters.hEditUserName` 路途看起来有点儿远；
+    __此处出现严重错误__：
+    以为是`Parent` 的属性，就属于正常的继承关系，然而并不是：
+    1. `hPanelParameters.Parent` 将得到 `hFigure`；
+    2. `hFigure.hPanelParameters` 这句话就是错误的，虽然看似是其子类，但无法想struct一样直接access，除非之前先用struct的方式进行绑定
 2. 通过强制“扁平化”的关系。
     `hFigureRoot.hEditUserName`
 
