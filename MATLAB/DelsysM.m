@@ -56,6 +56,7 @@ classdef DelsysM <  handle
 				obj.dataEMG = dataEMG(obj.chEMG, :);
 
 				obj.notify('eventEMGChanged');
+				% disp('NotifyEMG');
 			catch error
 				disp('Connection error or tcpip object has been closed.');
 			end
@@ -92,6 +93,8 @@ classdef DelsysM <  handle
 		% ---=== Start() & Stop()
 		function Start(obj, varargin)
 			% - Input parameters parse
+			EMG = [];
+			ACC = [];
 			if nargin < 2
 				EMG = [];
 				ACC = [];
