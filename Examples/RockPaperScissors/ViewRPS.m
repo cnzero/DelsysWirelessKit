@@ -37,7 +37,14 @@ function handles = InitFigure()
 							   'Parent', hFigure, ...
 							   'Units', 'normalized', ...
 							   'Position', [0.62 0.45 0.37 0.54]);
+	hAxesPictureBed = axes('Parent', hPanelPictureBed, ...
+						   'Units', 'normalized', ...
+						   'Position', [0.02 0.02 0.95 0.95]);
+	handles.hAxesPictureBed = hAxesPictureBed;
 	handles.hPanelPictureBed = hPanelPictureBed;
+	% - read pictures from folders
+	hPictureReady = imread('Pictures/Ready.jpg');
+	imshow(hPictureReady, 'Parent', handles.hAxesPictureBed);
 
 	% -- Level two: layout of [hPanelParameters]
 	% hEditUserName = uicontrol('Parent', hPanelParameters, ...)	
@@ -122,6 +129,10 @@ function handles = InitFigure()
 							  'String', 'Input User Name', ...
 							  'Callback', @callback_ClearUserNamePromption);
 
+
+	% -- Work Through Buttons
+	hButtonStartTraining = 
+
 	guidata(hFigure, handles);
 	if nargout
 		varargout{1} = hFigure;
@@ -149,9 +160,16 @@ function CellEditCallback_Motion(source, eventdata)
 	strMotion = {'Snooze', 'Open', 'Grasp', ...
 				 'Index', 'Middle', 'Rock', ...
 				 'Paper', 'Scissor', 'Unknow'};
-	strAllSelected = strMotion(reshape(trueValueMotion', 1, []))
+	strAllSelected = strMotion(reshape(trueValueMotion', 1, []));
+	handles.strAllSelected = strAllSelected;
+
 	r = eventdata.Indices(1);
 	c = eventdata.Indices(2);
-	strSelected = handles.hMotionCheckboxTable.Data(r,c+1);
-	
+	strSelected = handles.hMotionCheckboxTable.Data{r,c+1};
+	handles.strSelected = strSelected;
+
+	hPicture = imread(['Pictures/', strSelected, '.jpg']);
+	imshow(hPicture, 'Parent', handles.hAxesPictureBed);
+
+	guidata(source, handles);
 end
