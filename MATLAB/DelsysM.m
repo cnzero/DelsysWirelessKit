@@ -7,7 +7,7 @@ classdef DelsysM <  handle
 		dataEMG = []  % -- current tcpip cache
 		chEMG = []    % -- channel sequence of EMG
 		dataACC = []  % -- current tcpip cache
-		chEMG = []    % -- channel sequence of ACC
+		chACC = []    % -- channel sequence of ACC
 	end
 
 	events
@@ -32,7 +32,7 @@ classdef DelsysM <  handle
 								   	'InputBufferSize', 64000, ...
 								   	'BytesAvailableFcnMode', 'byte', ...
 								   	'BytesAvailableFcnCount', 384*5, ...
-								   	'BytesAvailableFcn', {obj.NotifyACC}) ...
+								   	'BytesAvailableFcn', {@obj.NotifyACC}) ...
 								   };
 		end
 		
@@ -90,7 +90,19 @@ classdef DelsysM <  handle
 		end
 
 		% ---=== Start() & Stop()
-		function Start(obj, EMG=[], ACC=[])
+		function Start(obj, varargin)
+			% - Input parameters parse
+			if nargin < 2
+				EMG = [];
+				ACC = [];
+			elseif nargin == 2
+				EMG = varargin{1};
+			elseif nargin == 3
+				EMG = varargin{1};
+				ACC = varargin{2};
+	        else
+	        	error('Dis-matched input parameters');
+	        end
 			% -- open common interfaceObject
 			try
 				fopen(obj.interfaceObjects{1});
@@ -100,7 +112,7 @@ classdef DelsysM <  handle
 
 			% -- input parameters dependent settings.
 			% -- open EMG interfaceObject
-			if !isempty(EMG)
+			if ~isempty(EMG)
 				obj.chEMG = EMG;
 				try
 					fopen(obj.interfaceObjects{2});
@@ -109,7 +121,7 @@ classdef DelsysM <  handle
 				end
 			end
 			% -- open ACC interfaceObject
-			if !isempty(ACC)
+			if ~isempty(ACC)
 				obj.chACC = ACC;
 				try
 					fopen(obj.interfaceObjects{3});
@@ -138,7 +150,7 @@ classdef DelsysM <  handle
 
 			% -- input parameters dependent settings.
 			% -- close EMG interfaceObject
-			if !isempty(obj.chEMG)
+			if ~isempty(obj.chEMG)
 				try
 					fclose(obj.interfaceObjects{2});
 				catch
@@ -146,7 +158,7 @@ classdef DelsysM <  handle
 				end
 			end
 			% -- close ACC interfaceObject
-			if !isempty(obj.chACC)
+			if ~isempty(obj.chACC)
 				try
 					fclose(obj.interfaceObjects{3});
 				catch
