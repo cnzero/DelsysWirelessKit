@@ -149,5 +149,9 @@ function CellEditCallback_Motion(source, eventdata)
 	strMotion = {'Snooze', 'Open', 'Grasp', ...
 				 'Index', 'Middle', 'Rock', ...
 				 'Paper', 'Scissor', 'Unknow'};
-	strSelect = strMotion(reshape(trueValueMotion', 1, []));
+	strAllSelected = strMotion(reshape(trueValueMotion', 1, []))
+	r = eventdata.Indices(1);
+	c = eventdata.Indices(2);
+	strSelected = handles.hMotionCheckboxTable.Data(r,c+1);
+	
 end
