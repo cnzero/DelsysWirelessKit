@@ -1,7 +1,15 @@
 classdef ViewRPS < handle
 	properties
-	hFRoot % the root handle of the view figure
+	model  % handle of Model
+	handles % the root handle of the view figure
 	     		% which contains all the widgets in the view figure
+	flagAxesRefreshing = 1
+	dataAxesEMG = []
+	dataEmgStored = []
+
+	flagEMGWrite2Files = 0
+
+	folder_name
 	end
 
 	events
@@ -9,14 +17,66 @@ classdef ViewRPS < handle
 
 	methods
 		% -- Constructor
-		function obj = ViewRPS()
-			obj.hFRoot = InitFigure();
+		function obj = ViewRPS(modelObj)
+			obj.model = modelObj;
+			obj.handles = InitFigure(obj);
+
+			obj.model.addlistener('eventEMGChanged', @obj.UpdateAxesEMG);
+			obj.model.addlistener('eventEMGChanged', @obj.Write2FilesEMG);
 		end
+		function obj = UpdateAxesEMG(obj, source, event)
+			if obj.flagAxesRefreshing == 1
+				% - refreshing axes all the time until stop Delsys
+				if(length(obj.dataAxesEMG) < (32832/4))
+	        		obj.dataAxesEMG = [obj.dataAxesEMG, obj.model.dataEMG];
+	        	else
+	        		obj.dataAxesEMG = [obj.dataAxesEMG(length(obj.model.dataEMG)+1:end); ...
+	        						   obj.model.dataEMG];
+	        	end
+	        	for ch=1:min(length(obj.model.chEMG), 4)
+	        		% obj.dataEMG = dataEMG(obj.chEMG, :);	
+	        		plot(obj.hAxesEMG(ch), obj.dataAxesEMG(ch, :));
+	        		drawnow;
+	        	end
+			end
+		end
+
+		function obj = Write2FilesEMG(obj, source, event)
+			if obj.flagEMGWrite2Files == 1
+				% - How much time sampling data are stored?
+				T = 6;
+				if(length(obj.dataEmgStored) < T*2000*length(obj.chEMG))
+					obj.dataEmgStored = [obj.dataEmgStored, obj.model.dataEMG];
+				else
+					obj.flagEMGWrite2Files = 0;
+					set(obj.handles.hButtonStartAcquire, 'String', 'Acquired Over');
+					dlmwrite([obj.folder_name, '\EMG\',obj.handles.strSelected, '.txt'], ...
+							 obj.dataEmgStored, ...
+							 'precision', '%.8f');
+				end
+			end
+		end
+		function Init_Folder(obj)
+        	c = clock;
+        	folder_name	= [];
+			folder_name = [folder_name, ...
+						   num2str(c(1)), ... % year
+			               num2str(c(2)), ... % month
+			               num2str(c(3)), ... % day
+			               num2str(c(4)), ... % hour
+			               num2str(c(5)), ... % minute
+			               num2str(fix(c(6)))]; % second
+			% for example, run this code at 2016-07-13 10:13:30s
+			% folder_name, 2016_07_13_10_13_30
+			mkdir(['Users\',folder_name]);
+			mkdir(['Users\',folder_name, '\EMG']);
+			mkdir(['Users\',folder_name, '\ACC']);
+			obj.folder_name = ['Users\',folder_name];
+        end
 	end
 end
 
-
-function handles = InitFigure()
+function handles = InitFigure(obj)
 	% -- Level one: the whole layout of the [hFigure]
 	hFigure = figure();
 	handles.hFigure = hFigure;
@@ -52,7 +112,7 @@ function handles = InitFigure()
 						 'Parent', hPanelParameters, ...
 						 'Units', 'normalized', ...
 						 'Position', [0.01, 0.01, 0.3 0.9]);
-	handles. hPanelUser = hPanelUser;
+	handles.hPanelUser = hPanelUser;
 
 	hPanelMovements = uipanel('Title', 'Movements Selection', ...
 							  'Parent', hPanelParameters, ...
@@ -114,10 +174,18 @@ function handles = InitFigure()
 								'Style', 'pushbutton', ...
 								'Units', 'normalized', ...
 								'Position', [0.9, 0.01 0.09, 0.9], ...
-								'String', 'RealTime');
+								'String', 'RealTime', ...
+								'Callback', {@Callback_ButtonRealTime, obj});
 	handles.hButtonRealTime = hButtonRealTime;
 	% -- Level two: layout of [hPanelEMGAxes]
-	
+	nCh = 4;
+	dWidth = 0.95/nCh;
+	for ch=1:nCh
+		handles.hAxesEMG(ch) = axes('Parent', handles.hPanelEMGAxes, ...
+									'Units', 'normalized', ...
+									'Position', [0.02 1-dWidth*ch 0.95 dWidth*0.85]);
+		handles.hPlotsEMG(ch) = plot(handles.hAxesEMG(ch), 0, '-y', 'LineWidth', 1);
+	end	
 
 	% -- Level two: layout of [hPanelPictureBed]
 
@@ -131,7 +199,21 @@ function handles = InitFigure()
 
 
 	% -- Work Through Buttons
-	hButtonStartTraining = 
+	hButtonStartAcquire =  uicontrol('Parent', hFigure, ...
+									 'Style', 'pushbutton', ...
+									 'Units', 'normalized', ...
+									 'Position', [0.7 0.3 0.1 0.07], ...
+									 'String', 'To Acquire', ...
+									 'Callback', {@Callback_ButtonStartAcquire, obj});
+	handles.hButtonStartAcquire = hButtonStartAcquire;
+
+	hButtonStartTrain = uicontrol('Parent', hFigure, ...
+									 'Style', 'pushbutton', ...
+									 'Units', 'normalized', ...
+									 'Position', [0.85 0.3 0.1 0.07], ...
+									 'String', 'Training Model', ...
+									 'Callback', @Callback_ButtonStartTrain);
+	handles.hButtonStartTrain = hButtonStartTrain; 
 
 	guidata(hFigure, handles);
 	if nargout
@@ -167,9 +249,46 @@ function CellEditCallback_Motion(source, eventdata)
 	c = eventdata.Indices(2);
 	strSelected = handles.hMotionCheckboxTable.Data{r,c+1};
 	handles.strSelected = strSelected;
+	set(handles.hButtonStartAcquire, 'String', 'To Acquire');
 
 	hPicture = imread(['Pictures/', strSelected, '.jpg']);
 	imshow(hPicture, 'Parent', handles.hAxesPictureBed);
 
+	guidata(source, handles);
+end
+
+function Callback_ButtonRealTime(source, event, obj)
+	handles = guidata(source);
+	obj.flagEMGWrite2Files = ~(obj.flagAxesRefreshing);
+
+	guidata(source, handles);
+end
+
+function Callback_ButtonStartAcquire(source, eventdata, obj)
+	% - To acquire original sEMG data under the appointed labels
+	handles = guidata(source);
+	addpath('../../Matlab');
+	obj.model.Start([1,2,3]);
+	obj.flagEMGWrite2Files = 1;
+
+	% - only 8s samples are stored in the files. 
+	% - else, flagEMGWrite2Files = 0;
+
+
+	guidata(source, handles);
+end
+
+function Callback_ButtonStartTrain(source, eventdata)
+	handles = guidata(source);
+	set(handles.hButtonStartTrain, 'Enable', 'off');
+
+	pause(5);
+	% - main purpose: to fit the [Machine Learning Model]
+
+
+
+
+	set(handles.hButtonStartTrain, 'String', 'RealTime Recognition');
+	set(handles.hButtonStartTrain, 'Enable', 'on');
 	guidata(source, handles);
 end
