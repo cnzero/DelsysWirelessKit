@@ -1,11 +1,21 @@
 classdef ViewRPS < handle
 	properties
-	model  % handle of Model
+	model  % handle of device Delsys Model
 	handles % the root handle of the view figure
 	     		% which contains all the widgets in the view figure
+	% - struct of fE-features extraction
+	fE.featuresCell = {'IAV'}
+				% - [featuresCell], selected features to be extracted into the feature space.
+	fE.LW = 128
+				% - [LW], Length of time Window
+	fE.LI = 64
+				% - [LI], Length of Incremental window.
+
+	classifier  % Pattern Recognition classifier
 	flagAxesRefreshing = 1
 	dataAxesEMG = []
 	dataEmgStored = []
+	dataEmgRealTime = []
 
 	flagEMGWrite2Files = 0
 
@@ -60,6 +70,21 @@ classdef ViewRPS < handle
 							 'precision', '%.8f');
 					obj.dataEmgStored = [];
 				end
+			end
+		end
+		function RealtimePR(obj)
+			% - whether enough raw EMG sampling points
+			if (size(obj.dataEmgRealTime, 2) < obj.fE.LW)
+				obj.dataEmgRealTime = [obj.dataEmgRealTime, obj.model.dataEMG];
+			else
+				obj.dataEmgRealTime = [obj.dataEmgRealTime(:,size(obj.model.dataEMG,2)+1:end), ...
+									   obj.model.dataEMG];
+				% - Yes, enough ->
+				% - features extraction
+				x = Rawdata2SampleMatrix(obj.dataEmgRealTime, obj.fE);
+				% - classifier judge
+				% - output test result
+				strResult = obj.classifier.judge(x, obj.strAllSelected); 
 			end
 		end
 		function Init_Folder(obj)
@@ -304,19 +329,27 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	obj.model.Stop();
 
 	% - read raw sEMG data from files
+	% ------------------  [To construct feature Space]
 	rawDataCell = {};
 	for n=1:length(handles.strAllSelected)
 		d = load([obj.folder_name, '\EMG\',handles.strAllSelected{n}, '.txt']);
 		rawDataCell{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
 		clear d;
 	end
-	featuresCell = {'IAV', 'MAV', 'ZC'};
-	LW = 128;
-	LI = 64;
-	sampleCell = RawdataCell2sampleCellN(rawDataCell, featuresCell, LW, LI);
-	
+	sampleCell = RawdataCell2sampleCellN(rawDataCell, obj.fE);
 
+	% -----------------  [To train classifier]
+	n_components = 3;
+	obj.classifier = LDA(n_components);
+	% - Next time, you can only change model/classifier here.
+	% - For example
+	% obj.classifier = PCA(n_components);
+	% obj.classifier = SVM(params);
+	obj.classifier.trainM(sampleCell);
 
+	% ------------------- [reatime pattern recognition]
+	obj.model.addlistener('eventEMGChanged', @obj.RealtimePR);
+	obj.model.Start(obj.handles.chSelect);
 
 	obj.handles = handles;
 end
