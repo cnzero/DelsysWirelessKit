@@ -21,7 +21,10 @@
 % 				nWindows, the number of sliding windows
 % Input parameters setting and default values
 % 			Style: varargin = {Rawdata, featuresCell, LW, LI}
-function sampleMatrix = Rawdata2SampleMatrix(Rawdata, featuresCell, LW, LI)
+function sampleMatrix = Rawdata2SampleMatrix(Rawdata, fE)
+	featuresCell = fE.featuresCell;
+	LW = fE.LW;
+	LI = fE.LI;
 	% sliding window algorithm
 	[nCh, L] = size(Rawdata);
 	nWindows = floor(1+(L-LW)/LI);
