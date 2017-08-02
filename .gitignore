@@ -16,3 +16,5 @@ test*
 
 # ignore video files
 *.avi
+# Word temporary files
+*.tmp
