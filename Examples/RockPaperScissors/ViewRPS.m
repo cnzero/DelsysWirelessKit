@@ -32,7 +32,7 @@ classdef ViewRPS < handle
 				if(length(obj.dataAxesEMG) < (32832/4))
 	        		obj.dataAxesEMG = [obj.dataAxesEMG, obj.model.dataEMG];
 	        	else
-	        		obj.dataAxesEMG = [obj.dataAxesEMG(length(obj.model.dataEMG)+1:end), ...
+	        		obj.dataAxesEMG = [obj.dataAxesEMG(:, size(obj.model.dataEMG,2)+1:end), ...
 	        						   obj.model.dataEMG];
 	        	end
 	        	for ch=1:min(length(obj.model.chEMG), 4)
@@ -53,12 +53,12 @@ classdef ViewRPS < handle
 					uiProgress(obj.handles, p, 'r');
 
 				else
-					obj.dataEmgStored = [];
 					obj.flagEMGWrite2Files = 0;
 					set(obj.handles.hButtonStartAcquire, 'String', 'Acquired Over');
 					dlmwrite([obj.folder_name, '\EMG\',obj.handles.strSelected, '.txt'], ...
 							 obj.dataEmgStored, ...
 							 'precision', '%.8f');
+					obj.dataEmgStored = [];
 				end
 			end
 		end
@@ -227,6 +227,15 @@ function handles = InitFigure(obj)
 									 'Callback', {@Callback_ButtonStartTrain, obj});
 	handles.hButtonStartTrain = hButtonStartTrain; 
 
+	hButtonRealTimePR = uicontrol('Parent', hFigure, ...
+								  'Style', 'pushbutton', ...
+								  'Units', 'normalized', ...
+								  'Position', [0.85 0.2 0.08 0.07], ...
+								  'String', 'RealTime Recognition', ...
+								  'Callback', {@Callback_ButtonRealTimePR, obj});
+	handles.hButtonRealTimePR = hButtonRealTimePR;
+
+
 	guidata(hFigure, handles);
 	if nargout
 		varargout{1} = hFigure;
@@ -287,18 +296,23 @@ function Callback_ButtonStartAcquire(source, eventdata, obj)
 	obj.handles = handles;
 end
 
-function Callback_ButtonStartTrain(source, eventdata)
+function Callback_ButtonStartTrain(source, eventdata, obj)
 	handles = obj.handles;
-	set(handles.hButtonStartTrain, 'Enable', 'off');
-
-	pause(5);
 	% - main purpose: to fit the [Machine Learning Model]
+	obj.flagEMGWrite2Files = 0;
+	obj.flagAxesRefreshing = 0;
+	obj.model.Stop();
+
+	% - read raw sEMG data from files
+	obj.cellRawData = {};
+	for n=1:length(handles.strAllSelected)
+		d = load([obj.folder_name, '\EMG\',handles.strAllSelected{n}, '.txt']);
+		obj.cellRawData{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
+		clear d;
+	end
 
 
 
-
-	set(handles.hButtonStartTrain, 'String', 'RealTime Recognition');
-	set(handles.hButtonStartTrain, 'Enable', 'on');
 	obj.handles = handles;
 end
 
