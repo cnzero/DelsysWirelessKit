@@ -304,12 +304,17 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	obj.model.Stop();
 
 	% - read raw sEMG data from files
-	obj.cellRawData = {};
+	rawDataCell = {};
 	for n=1:length(handles.strAllSelected)
 		d = load([obj.folder_name, '\EMG\',handles.strAllSelected{n}, '.txt']);
-		obj.cellRawData{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
+		rawDataCell{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
 		clear d;
 	end
+	featuresCell = {'IAV', 'MAV', 'ZC'};
+	LW = 128;
+	LI = 64;
+	sampleCell = RawdataCell2sampleCellN(rawDataCell, featuresCell, LW, LI);
+	
 
 
 
