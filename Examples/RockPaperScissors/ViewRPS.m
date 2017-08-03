@@ -4,11 +4,9 @@ classdef ViewRPS < handle
 	handles % the root handle of the view figure
 	     		% which contains all the widgets in the view figure
 	% - struct of fE-features extraction
-	fE.featuresCell = {'IAV'}
+	fE
 				% - [featuresCell], selected features to be extracted into the feature space.
-	fE.LW = 128
 				% - [LW], Length of time Window
-	fE.LI = 64
 				% - [LI], Length of Incremental window.
 
 	classifier  % Pattern Recognition classifier
@@ -28,6 +26,10 @@ classdef ViewRPS < handle
 	methods
 		% -- Constructor
 		function obj = ViewRPS(modelObj)
+			% - Initialize [fE]
+			obj.fE.featuresCell = {'RMS', 'MAV', 'VAR'};
+			obj.fE.LW = 128;
+			obj.fE.LI = 64;
 			addpath('../../Matlab');
 			obj.model = modelObj;
 			obj.handles = InitFigure(obj);
@@ -72,21 +74,24 @@ classdef ViewRPS < handle
 				end
 			end
 		end
-		function RealtimePR(obj)
+		function obj = RealtimePR(obj, source, event)
+			disp('Real time Pattern Recognition');
 			% - whether enough raw EMG sampling points
 			if (size(obj.dataEmgRealTime, 2) < obj.fE.LW)
 				obj.dataEmgRealTime = [obj.dataEmgRealTime, obj.model.dataEMG];
+				disp('Cat data...');
 			else
 				obj.dataEmgRealTime = [obj.dataEmgRealTime(:,size(obj.model.dataEMG,2)+1:end), ...
 									   obj.model.dataEMG];
 				% - Yes, enough ->
 				% - features extraction
-				x = Rawdata2SampleMatrix(obj.dataEmgRealTime, obj.fE);
+				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
 				% - classifier judge
 				% - output test result
-				strResult = obj.classifier.judge(x, obj.strAllSelected); 
+				strResult = obj.classifier.judge(x, obj.handles.strAllSelected); 
 
 				% - Refreshing pictures
+				disp('Refreshing pictures...');
 				hPicture = imread(['Pictures/', strResult, '.jpg']);
 				imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
 
@@ -332,7 +337,7 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% - main purpose: to fit the [Machine Learning Model]
 	obj.flagEMGWrite2Files = 0;
 	obj.flagAxesRefreshing = 0;
-	obj.model.Stop();
+	% obj.model.Stop();
 
 	% - read raw sEMG data from files
 	% ------------------  [To construct feature Space]
@@ -342,9 +347,11 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 		rawDataCell{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
 		clear d;
 	end
-	sampleCell = RawdataCell2sampleCellN(rawDataCell, obj.fE);
+	addpath('../../MATLAB/FeaturesExtraction');
+	sampleCell = RawdataCell2SampleCellN(rawDataCell, obj.fE);
 
 	% -----------------  [To train classifier]
+	addpath('../../MATLAB/DimensionReduction');
 	n_components = 3;
 	obj.classifier = LDA(n_components);
 	% - Next time, you can only change model/classifier here.
@@ -357,7 +364,7 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 
 	% ------------------- [reatime pattern recognition]
 	obj.model.addlistener('eventEMGChanged', @obj.RealtimePR);
-	obj.model.Start(obj.handles.chSelect);
+	% obj.model.Start([obj.handles.chSelect]);
 
 	obj.handles = handles;
 end

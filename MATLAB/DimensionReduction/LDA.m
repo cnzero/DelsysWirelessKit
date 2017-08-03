@@ -52,6 +52,7 @@ classdef LDA < handle
 			% sorting eigenvectors with eigenvalues descending.
 			[Vector, Value] = sortVectorValue(old_Vector, old_Value);
 
+			obj.n_components = min(obj.n_components, size(samplesCell{1}, 2));
 			obj.projectM = Vector(:, 1:obj.n_components);
 			obj.means = center;
 			% LDA_centers = center * LDA_matrix;
@@ -62,10 +63,13 @@ classdef LDA < handle
 		end
 
 		function name = judge(obj, x, nameClasses)
-			centerR = center * obj.projectM;
+			centerR = obj.means * obj.projectM;
 			xR = x * obj.projectM;
+
+			size(centerR)
+			size(xR)
 			name = nameClasses{NearestRow(xR, centerR)};
-			obj.notify('eventJudged');
+			% obj.notify('eventJudged');
 		end
 	end
 end
