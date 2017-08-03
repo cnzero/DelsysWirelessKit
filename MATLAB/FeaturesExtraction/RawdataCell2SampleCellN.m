@@ -19,7 +19,7 @@ function sampleCell = RawdataCell2sampleCellN(rawdataCell, fE)
 	% LW = fE.LW;
 	% LI = fE.LI;
 	sampleCell = {};
-	for n=1:length(rawdataCell)
+	parfor n=1:length(rawdataCell)
 		sampleCell{n} = Rawdata2SampleMatrix(rawdataCell{n}, fE);
 	end
 end

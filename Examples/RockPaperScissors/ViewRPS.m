@@ -47,7 +47,7 @@ classdef ViewRPS < handle
 	        		obj.dataAxesEMG = [obj.dataAxesEMG(:, size(obj.model.dataEMG,2)+1:end), ...
 	        						   obj.model.dataEMG];
 	        	end
-	        	for ch=1:min(length(obj.model.chEMG), 4)
+	        	parfor ch=1:min(length(obj.model.chEMG), 4)
 	        		% obj.dataEMG = dataEMG(obj.chEMG, :);	
 	        		plot(obj.handles.hAxesEMG(ch), obj.dataAxesEMG(ch, :));
 	        		drawnow;
@@ -93,6 +93,7 @@ classdef ViewRPS < handle
 				% - Refreshing pictures
 				hPicture = imread(['Pictures/', strResult, '.jpg']);
 				imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
+				drawnow;
 
 				% - Send commands to Hand
 			end
@@ -221,7 +222,7 @@ function handles = InitFigure(obj)
 	% -- Level two: layout of [hPanelEMGAxes]
 	nCh = 4;
 	dWidth = 0.95/nCh;
-	for ch=1:nCh
+	parfor ch=1:nCh
 		handles.hAxesEMG(ch) = axes('Parent', handles.hPanelEMGAxes, ...
 									'Units', 'normalized', ...
 									'Position', [0.02 1-dWidth*ch 0.9 dWidth*0.86]);
@@ -341,7 +342,7 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% - read raw sEMG data from files
 	% ------------------  [To construct feature Space]
 	rawDataCell = {};
-	for n=1:length(handles.strAllSelected)
+	parfor n=1:length(handles.strAllSelected)
 		d = load([obj.folder_name, '\EMG\',handles.strAllSelected{n}, '.txt']);
 		rawDataCell{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
 		clear d;
@@ -351,7 +352,7 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 
 	% -----------------  [To train classifier]
 	addpath('../../MATLAB/DimensionReduction');
-	n_components = 2;
+	n_components = 4;
 	obj.classifier = LDA(n_components);
 	% - Next time, you can only change model/classifier here.
 	% - For example
