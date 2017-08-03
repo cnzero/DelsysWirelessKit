@@ -58,6 +58,16 @@ classdef LDA < handle
 			% LDA_centers = center * LDA_matrix;
 		end
 
+		function obj = SimpleTrainM(obj, samplesCell)
+			if obj.n_components == size(samplesCell{1}, 2)
+				% - there is no need to reduct dimensionality
+				obj.projectM = eye(obj.n_components);
+				for mv=1:length(samplesCell)
+					obj.means(mv, :) = mean(samplesCell{mv}, 1);
+				end
+			end
+		end
+
 		function redX = reduct(obj, X)
 			redX = X * obj.projectM;
 		end
@@ -65,9 +75,6 @@ classdef LDA < handle
 		function name = judge(obj, x, nameClasses)
 			centerR = obj.means * obj.projectM;
 			xR = x * obj.projectM;
-
-			size(centerR)
-			size(xR)
 			name = nameClasses{NearestRow(xR, centerR)};
 			% obj.notify('eventJudged');
 		end

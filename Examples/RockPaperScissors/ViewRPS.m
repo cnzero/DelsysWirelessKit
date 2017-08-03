@@ -27,7 +27,7 @@ classdef ViewRPS < handle
 		% -- Constructor
 		function obj = ViewRPS(modelObj)
 			% - Initialize [fE]
-			obj.fE.featuresCell = {'RMS', 'MAV', 'VAR'};
+			obj.fE.featuresCell = {'RMS', 'MAV'};
 			obj.fE.LW = 128;
 			obj.fE.LI = 64;
 			addpath('../../Matlab');
@@ -88,10 +88,9 @@ classdef ViewRPS < handle
 				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
 				% - classifier judge
 				% - output test result
-				strResult = obj.classifier.judge(x, obj.handles.strAllSelected); 
+				strResult = obj.classifier.judge(x, obj.handles.strAllSelected) 
 
 				% - Refreshing pictures
-				disp('Refreshing pictures...');
 				hPicture = imread(['Pictures/', strResult, '.jpg']);
 				imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
 
@@ -267,7 +266,7 @@ function handles = InitFigure(obj)
 								  'Style', 'pushbutton', ...
 								  'Units', 'normalized', ...
 								  'Position', [0.85 0.2 0.08 0.07], ...
-								  'String', 'RealTime Recognition', ...
+								  'String', 'Stop', ...
 								  'Callback', {@Callback_ButtonRealTimePR, obj});
 	handles.hButtonRealTimePR = hButtonRealTimePR;
 
@@ -352,13 +351,14 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 
 	% -----------------  [To train classifier]
 	addpath('../../MATLAB/DimensionReduction');
-	n_components = 3;
+	n_components = 2;
 	obj.classifier = LDA(n_components);
 	% - Next time, you can only change model/classifier here.
 	% - For example
 	% obj.classifier = PCA(n_components);
 	% obj.classifier = SVM(params);
-	obj.classifier.trainM(sampleCell);
+	% obj.classifier.trainM(sampleCell);
+	obj.classifier.SimpleTrainM(sampleCell);
 	% -- how to notify image refreshing and HandObj---------------------[][][][][][][][]
 	% obj.classifier.addlistener('eventJudged', @)
 
@@ -369,6 +369,9 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	obj.handles = handles;
 end
 
+function Callback_ButtonRealTimePR(source, eventdata, obj)
+	obj.model.Stop();
+end
 function uiProgress(handles, p, color)
 	patch('Parent', handles.hAxesProgress, ...
 		  'XData', [0 1 1 0], ...
