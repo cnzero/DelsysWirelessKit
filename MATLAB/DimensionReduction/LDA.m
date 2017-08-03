@@ -13,6 +13,9 @@ classdef LDA < handle
 		explained_variance_ratio % Percentage of variance by each of the selected components
 		means			  % -- size(n_classes, n_features)
 
+		% - accuracy
+		accuracyMatrix = []      % -- size(nClasses, nClasses)
+
 	end
 
 	events
@@ -59,14 +62,30 @@ classdef LDA < handle
 		end
 
 		function obj = SimpleTrainM(obj, samplesCell)
-			% disp('No dimensionality reduction.');
-			if obj.n_components == size(samplesCell{1}, 2)
-				% - there is no need to reduct dimensionality
-				obj.projectM = eye(obj.n_components);
-				for mv=1:length(samplesCell)
-					obj.means(mv, :) = mean(samplesCell{mv}, 1);
-				end
+			% - there is no need to reduct dimensionality
+			obj.samplesCell = samplesCell;
+			obj.n_components = size(obj.samplesCell{1}, 2);
+			obj.projectM = eye(obj.n_components);
+			for mv=1:length(samplesCell)
+				obj.means(mv, :) = mean(samplesCell{mv}, 1);
 			end
+
+			% -- Update the [accuracyMatrix]
+			accuracyMatrix = zeros(length(obj.samplesCell));
+			for mv=1:length(obj.samplesCell)
+				xMatrix = obj.samplesCell{mv};
+				M = size(xMatrix, 1); % - number of samples in that class.
+				for n=1:M
+					x = xMatrix(n, :);
+					xR = x * obj.projectM;
+					centerR = obj.means * obj.projectM;
+					result = NearestRow(xR, centerR);
+					% -- row as the main stream
+					accuracyMatrix(mv, result) = accuracyMatrix(mv, result) + 1;
+				end
+				accuracyMatrix(mv, :) = accuracyMatrix(mv, :) / M;
+			end
+			obj.accuracyMatrix= accuracyMatrix;
 		end
 
 		function redX = reduct(obj, X)
@@ -78,6 +97,20 @@ classdef LDA < handle
 			xR = x * obj.projectM;
 			name = nameClasses{NearestRow(xR, centerR)};
 			% obj.notify('eventJudged');
+		end
+
+		function Accuracy(obj, xMatrix, label)
+			L = size(xMatrix, 1);
+			nRight = 0;
+			for n=1:L
+				centerR = obj.means * obj.projectM;
+				xR = xMatrix(n, :) * obj.projectM;
+				result = NearestRow(xR, centerR);
+				if result == label
+					nRight = nRight + 1;
+				end
+			end
+			obj.accuracyTrain = nRight/L; 
 		end
 	end
 end
