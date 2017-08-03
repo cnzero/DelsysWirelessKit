@@ -30,12 +30,12 @@ function sampleMatrix = Rawdata2SampleMatrix(Rawdata, fE)
 	nWindows = floor(1+(L-LW)/LI);
 	nFeatures = length(featuresCell);
 	sampleMatrix = [];
-	parfor wd=0:nWindows-1
+	for wd=0:nWindows-1
 		f_row = [];
-		parfor ch=1:nCh
+		for ch=1:nCh
 			f_ch_row = [];
 			data_wd = Rawdata(ch, wd*LI+1:wd*LI+LW);
-			parfor fe=1:nFeatures
+			for fe=1:nFeatures
 				function_handle = str2func(['f',featuresCell{fe}]);
 				f_ch_row= [f_ch_row, function_handle(data_wd)];
 			end

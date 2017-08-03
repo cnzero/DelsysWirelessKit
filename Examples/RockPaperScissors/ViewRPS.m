@@ -47,7 +47,7 @@ classdef ViewRPS < handle
 	        		obj.dataAxesEMG = [obj.dataAxesEMG(:, size(obj.model.dataEMG,2)+1:end), ...
 	        						   obj.model.dataEMG];
 	        	end
-	        	parfor ch=1:min(length(obj.model.chEMG), 4)
+	        	for ch=1:min(length(obj.model.chEMG), 4)
 	        		% obj.dataEMG = dataEMG(obj.chEMG, :);	
 	        		plot(obj.handles.hAxesEMG(ch), obj.dataAxesEMG(ch, :));
 	        		drawnow;
@@ -222,7 +222,7 @@ function handles = InitFigure(obj)
 	% -- Level two: layout of [hPanelEMGAxes]
 	nCh = 4;
 	dWidth = 0.95/nCh;
-	parfor ch=1:nCh
+	for ch=1:nCh
 		handles.hAxesEMG(ch) = axes('Parent', handles.hPanelEMGAxes, ...
 									'Units', 'normalized', ...
 									'Position', [0.02 1-dWidth*ch 0.9 dWidth*0.86]);
@@ -342,7 +342,7 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% - read raw sEMG data from files
 	% ------------------  [To construct feature Space]
 	rawDataCell = {};
-	parfor n=1:length(handles.strAllSelected)
+	for n=1:length(handles.strAllSelected)
 		d = load([obj.folder_name, '\EMG\',handles.strAllSelected{n}, '.txt']);
 		rawDataCell{n} = d(:, 2000*.3:end-2000*.3); % - break off both ends.
 		clear d;

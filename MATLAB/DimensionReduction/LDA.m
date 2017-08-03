@@ -31,7 +31,7 @@ classdef LDA < handle
 			Width = size(samplesCell{1}, 2);
 			xSw = zeros(Width);
 			SUM = zeros(1, Width);
-			parfor mv=1:length(samplesCell)
+			for mv=1:length(samplesCell)
 				Specimen_Counts = size(samplesCell{mv}, 1);
 				center(mv, :) = mean(samplesCell{mv}, 1);
 				temp = samplesCell{mv} - repmat(center(mv, :), Specimen_Counts, 1);
@@ -42,7 +42,7 @@ classdef LDA < handle
 
 			% xSb
 			xSb = zeros(Width);
-			parfor mv=1:length(samplesCell)
+			for mv=1:length(samplesCell)
 				temp = center(mv, :) - Xmeans;
 				xSb = xSb + temp'*temp;
 			end
@@ -63,7 +63,7 @@ classdef LDA < handle
 			if obj.n_components == size(samplesCell{1}, 2)
 				% - there is no need to reduct dimensionality
 				obj.projectM = eye(obj.n_components);
-				parfor mv=1:length(samplesCell)
+				for mv=1:length(samplesCell)
 					obj.means(mv, :) = mean(samplesCell{mv}, 1);
 				end
 			end
