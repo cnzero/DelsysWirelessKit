@@ -16,6 +16,7 @@ classdef LDA < handle
 	end
 
 	events
+		eventJudged
 	end
 
 	methods
@@ -64,6 +65,7 @@ classdef LDA < handle
 			centerR = center * obj.projectM;
 			xR = x * obj.projectM;
 			name = nameClasses{NearestRow(xR, centerR)};
+			obj.notify('eventJudged');
 		end
 	end
 end

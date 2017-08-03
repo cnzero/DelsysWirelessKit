@@ -85,6 +85,12 @@ classdef ViewRPS < handle
 				% - classifier judge
 				% - output test result
 				strResult = obj.classifier.judge(x, obj.strAllSelected); 
+
+				% - Refreshing pictures
+				hPicture = imread(['Pictures/', strResult, '.jpg']);
+				imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
+
+				% - Send commands to Hand
 			end
 		end
 		function Init_Folder(obj)
@@ -346,6 +352,8 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% obj.classifier = PCA(n_components);
 	% obj.classifier = SVM(params);
 	obj.classifier.trainM(sampleCell);
+	% -- how to notify image refreshing and HandObj---------------------[][][][][][][][]
+	% obj.classifier.addlistener('eventJudged', @)
 
 	% ------------------- [reatime pattern recognition]
 	obj.model.addlistener('eventEMGChanged', @obj.RealtimePR);
