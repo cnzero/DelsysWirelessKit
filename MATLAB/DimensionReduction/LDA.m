@@ -69,11 +69,24 @@ classdef LDA < handle
 			for mv=1:length(samplesCell)
 				obj.means(mv, :) = mean(samplesCell{mv}, 1);
 			end
+		end
 
+		function redX = reduct(obj, X)
+			redX = X * obj.projectM;
+		end
+
+		function name = judge(obj, x)
+			centerR = obj.means * obj.projectM;
+			xR = x * obj.projectM;
+			nRow = NearestRow(xR, centerR);
+			% obj.notify('eventJudged');
+		end
+
+		function accuracyMatrix = GetAccuracy(obj, testsCell)
 			% -- Update the [accuracyMatrix]
-			accuracyMatrix = zeros(length(obj.samplesCell));
-			for mv=1:length(obj.samplesCell)
-				xMatrix = obj.samplesCell{mv};
+			accuracyMatrix = zeros(length(testsCell));
+			for mv=1:length(testsCell)
+				xMatrix = testsCell{mv};
 				M = size(xMatrix, 1); % - number of samples in that class.
 				for n=1:M
 					x = xMatrix(n, :);
@@ -86,17 +99,6 @@ classdef LDA < handle
 				accuracyMatrix(mv, :) = accuracyMatrix(mv, :) / M;
 			end
 			obj.accuracyMatrix= accuracyMatrix;
-		end
-
-		function redX = reduct(obj, X)
-			redX = X * obj.projectM;
-		end
-
-		function name = judge(obj, x, nameClasses)
-			centerR = obj.means * obj.projectM;
-			xR = x * obj.projectM;
-			name = nameClasses{NearestRow(xR, centerR)};
-			% obj.notify('eventJudged');
 		end
 
 		function Accuracy(obj, xMatrix, label)
