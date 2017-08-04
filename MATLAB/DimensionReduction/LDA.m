@@ -75,7 +75,7 @@ classdef LDA < handle
 			redX = X * obj.projectM;
 		end
 
-		function name = judge(obj, x)
+		function nRow = Judge(obj, x)
 			centerR = obj.means * obj.projectM;
 			xR = x * obj.projectM;
 			nRow = NearestRow(xR, centerR);

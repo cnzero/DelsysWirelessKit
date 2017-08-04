@@ -90,12 +90,12 @@ classdef ViewRPS < handle
 				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
 				% - classifier judge
 				% - output test result
-				nResult = obj.classifier.judge(x); 
-				if length(obj.rowResult) < 20
+				nResult = obj.classifier.Judge(x); 
+				if length(obj.rowResult) < 3
 					obj.rowResult = [obj.rowResult, nResult];
 				else
 					obj.rowResult = [obj.rowResult(2:end), nResult];
-					nFinal = fix(medain(obj.rowResult));
+					nFinal = ceil(median(obj.rowResult));
 					strResult = obj.handles.strAllSelected{nFinal};
 					% - Refreshing pictures
 					hPicture = imread(['Pictures/', strResult, '.jpg']);
