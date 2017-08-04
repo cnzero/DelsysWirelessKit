@@ -12,7 +12,8 @@
 *.csv
 
 # testing scripts to be ignored
-test*
+# but many testing scripts are useful.
+# test*
 
 # ignore video files
 *.avi
