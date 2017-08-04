@@ -20,6 +20,7 @@ classdef ViewRPS < handle
 	folder_name
 
 	rowResult = []  % - sliding window for final result. 
+	device  % - Control device
 	end
 
 	events
@@ -102,6 +103,8 @@ classdef ViewRPS < handle
 					imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
 					drawnow;
 					% - Send commands to Hand
+					hFunctionMove = str2func(['smove', strResult]);
+					hFunctionMove(obj.device);
 				end
 			end
 		end
@@ -370,6 +373,9 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% -- how to notify image refreshing and HandObj---------------------[][][][][][][][]
 	% obj.classifier.addlistener('eventJudged', @)
 
+	% -- Connected to Devices/Hand
+	addpath('../../Devices/Ghand');
+	obj.device = InitGHand(5); % - COM5
 	% ------------------- [reatime pattern recognition]
 	obj.model.addlistener('eventEMGChanged', @obj.RealtimePR);
 	% obj.model.Start([obj.handles.chSelect]);
