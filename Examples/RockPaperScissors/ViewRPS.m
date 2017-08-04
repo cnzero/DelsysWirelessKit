@@ -88,14 +88,14 @@ classdef ViewRPS < handle
 									   obj.model.dataEMG];
 				% - Yes, enough ->
 				% - features extraction
-				% x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
-				x = Rawdata2SampleMatrix(obj.dataEmgRealTime, obj.fE);
+				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
+				% x = Rawdata2SampleMatrix(obj.dataEmgRealTime, obj.fE);
 				% - x, not just only one sample point, 
 				% - maybe a matrix with every row being a sample
 				% - classifier judge
 				% - output test result
 				nResult = obj.classifier.Judge(x); 
-				if length(obj.rowResult) < 10
+				if length(obj.rowResult) < 3
 					obj.rowResult = [obj.rowResult, nResult];
 				else
 					obj.rowResult = [obj.rowResult(2:end), nResult];

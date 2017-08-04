@@ -79,8 +79,8 @@ classdef LDA < handle
 			% - X, a sample matrix with every row being a sample point.
 			% obj.notify('eventJudged');
 			nRow = [];
-			centerR = obj.mean * obj.projectM;
-			for n=1:size(X, 1)
+			centerR = obj.means * obj.projectM;
+			parfor n=1:size(X, 1)
 				x = X(n, :);
 				xR = x * obj.projectM;
 				nRow = [nRow, NearestRow(xR, centerR)];
