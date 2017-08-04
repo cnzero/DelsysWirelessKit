@@ -75,11 +75,16 @@ classdef LDA < handle
 			redX = X * obj.projectM;
 		end
 
-		function nRow = Judge(obj, x)
-			centerR = obj.means * obj.projectM;
-			xR = x * obj.projectM;
-			nRow = NearestRow(xR, centerR);
+		function nRow = Judge(obj, X)
+			% - X, a sample matrix with every row being a sample point.
 			% obj.notify('eventJudged');
+			nRow = [];
+			centerR = obj.mean * obj.projectM;
+			for n=1:size(X, 1)
+				x = X(n, :);
+				xR = x * obj.projectM;
+				nRow = [nRow, NearestRow(xR, centerR)];
+			end
 		end
 
 		function accuracyMatrix = GetAccuracy(obj, testsCell)

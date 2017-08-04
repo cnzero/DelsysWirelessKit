@@ -61,7 +61,7 @@ classdef ViewRPS < handle
 		function obj = Write2FilesEMG(obj, source, event)
 			if obj.flagEMGWrite2Files == 1
 				% - How much time sampling data are stored?
-				T = 6;
+				T = 3;
 				if(length(obj.dataEmgStored) < T*2000*length(obj.model.chEMG))
 					obj.dataEmgStored = [obj.dataEmgStored, obj.model.dataEMG];
 					p = length(obj.dataEmgStored)/(T*2000*length(obj.model.chEMG));
@@ -78,7 +78,7 @@ classdef ViewRPS < handle
 			end
 		end
 		function obj = RealtimePR(obj, source, event)
-			disp('Real time Pattern Recognition');
+			% disp('Real time Pattern Recognition');
 			% - whether enough raw EMG sampling points
 			if (size(obj.dataEmgRealTime, 2) < obj.fE.LW)
 				obj.dataEmgRealTime = [obj.dataEmgRealTime, obj.model.dataEMG];
@@ -88,20 +88,26 @@ classdef ViewRPS < handle
 									   obj.model.dataEMG];
 				% - Yes, enough ->
 				% - features extraction
-				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
+				% x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
+				x = Rawdata2SampleMatrix(obj.dataEmgRealTime, obj.fE);
+				% - x, not just only one sample point, 
+				% - maybe a matrix with every row being a sample
 				% - classifier judge
 				% - output test result
 				nResult = obj.classifier.Judge(x); 
-				if length(obj.rowResult) < 3
+				if length(obj.rowResult) < 10
 					obj.rowResult = [obj.rowResult, nResult];
 				else
 					obj.rowResult = [obj.rowResult(2:end), nResult];
 					nFinal = ceil(median(obj.rowResult));
 					strResult = obj.handles.strAllSelected{nFinal};
 					% - Refreshing pictures
-					hPicture = imread(['../../MATLAB/Pictures/', strResult, '.jpg']);
-					imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
-					drawnow;
+					% ------- No pictures
+					% hPicture = imread(['../../MATLAB/Pictures/', strResult, '.jpg']);
+					% imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
+					% drawnow;
+					% --------No pictures
+
 					% - Send commands to Hand
 					hFunctionMove = str2func(['smove', strResult]);
 					hFunctionMove(obj.device);
