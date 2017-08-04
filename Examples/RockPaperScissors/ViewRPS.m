@@ -18,6 +18,8 @@ classdef ViewRPS < handle
 	flagEMGWrite2Files = 0
 
 	folder_name
+
+	rowResult = []  % - sliding window for final result. 
 	end
 
 	events
@@ -88,14 +90,19 @@ classdef ViewRPS < handle
 				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
 				% - classifier judge
 				% - output test result
-				strResult = obj.classifier.judge(x, obj.handles.strAllSelected) 
-
-				% - Refreshing pictures
-				hPicture = imread(['Pictures/', strResult, '.jpg']);
-				imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
-				drawnow;
-
-				% - Send commands to Hand
+				nResult = obj.classifier.judge(x); 
+				if length(obj.rowResult) < 20
+					obj.rowResult = [obj.rowResult, nResult];
+				else
+					obj.rowResult = [obj.rowResult(2:end), nResult];
+					nFinal = fix(medain(obj.rowResult));
+					strResult = obj.handles.strAllSelected{nFinal};
+					% - Refreshing pictures
+					hPicture = imread(['Pictures/', strResult, '.jpg']);
+					imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
+					drawnow;
+					% - Send commands to Hand
+				end
 			end
 		end
 		function Init_Folder(obj)
