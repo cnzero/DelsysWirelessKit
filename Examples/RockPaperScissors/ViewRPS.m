@@ -99,7 +99,7 @@ classdef ViewRPS < handle
 					nFinal = ceil(median(obj.rowResult));
 					strResult = obj.handles.strAllSelected{nFinal};
 					% - Refreshing pictures
-					hPicture = imread(['Pictures/', strResult, '.jpg']);
+					hPicture = imread(['../../MATLAB/Pictures/', strResult, '.jpg']);
 					imshow(hPicture, 'Parent', obj.handles.hAxesPictureBed);	
 					drawnow;
 					% - Send commands to Hand
@@ -155,7 +155,7 @@ function handles = InitFigure(obj)
 	handles.hAxesPictureBed = hAxesPictureBed;
 	handles.hPanelPictureBed = hPanelPictureBed;
 	% - read pictures from folders
-	hPictureReady = imread('Pictures/Ready.jpg');
+	hPictureReady = imread('../../MATLAB/Pictures/Ready.jpg');
 	imshow(hPictureReady, 'Parent', handles.hAxesPictureBed);
 
 	% -- Level two: layout of [hPanelParameters]
@@ -313,7 +313,7 @@ function CellEditCallback_Motion(source, eventdata, obj)
 	strSelected = handles.hMotionCheckboxTable.Data{r,c+1};
 	handles.strSelected = strSelected;
 	set(handles.hButtonStartAcquire, 'String', 'Ready To Acquire');
-	hPicture = imread(['Pictures/', strSelected, '.jpg']);
+	hPicture = imread(['../../MATLAB/Pictures/', strSelected, '.jpg']);
 	imshow(hPicture, 'Parent', handles.hAxesPictureBed);
 	obj.flagEMGWrite2Files = 0;
 	if obj.model.statusBusy == 0
