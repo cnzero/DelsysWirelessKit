@@ -10,6 +10,7 @@
 # I will store these precious data with other repository and detailed description readme files
 *.txt
 *.csv
+*.mat
 
 # testing scripts to be ignored
 # but many testing scripts are useful.
@@ -19,3 +20,6 @@
 *.avi
 # Word temporary files
 *.tmp
+
+# ignore 'Examples' folder
+Examples*
