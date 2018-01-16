@@ -14,7 +14,7 @@
 % 						    every [] matrix represents a "Sample" matrix Lm X (nFs*nChs)
 %							every row of [] is sample in Feature Space or Input Space
 % Add Parameters' default values.
-function sampleCell = RawdataCell2sampleCellN(rawdataCell, fE)
+function sampleCell = RawdataCell2SampleCellN(rawdataCell, fE)
 	% featuresCell = fE.featuresCell;
 	% LW = fE.LW;
 	% LI = fE.LI;
