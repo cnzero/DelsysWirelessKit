@@ -1,6 +1,6 @@
 function testRandomMove()
     L = InitGHand(5);
-    for i=1:10
+    for i=1:20
         n = unidrnd(3)
         switch n
             case 1
@@ -10,6 +10,6 @@ function testRandomMove()
             case 3
                 smoveScissor(L);
         end
-        pause(0.5)
+        pause(1.5)
     end
 end
