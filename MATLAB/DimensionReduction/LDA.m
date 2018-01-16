@@ -80,7 +80,7 @@ classdef LDA < handle
 			% obj.notify('eventJudged');
 			nRow = [];
 			centerR = obj.means * obj.projectM;
-			parfor n=1:size(X, 1)
+			for n=1:size(X, 1)
 				x = X(n, :);
 				xR = x * obj.projectM;
 				nRow = [nRow, NearestRow(xR, centerR)];
