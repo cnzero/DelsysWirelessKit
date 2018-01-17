@@ -21,3 +21,5 @@
 # Word temporary files
 *.tmp
 
+# ignore xmind files
+*.xmind
