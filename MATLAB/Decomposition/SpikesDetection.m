@@ -13,8 +13,8 @@ function [restList, SpikesX, SpikesY] = SpikesDetection(aList, W)
     L = size(aList, 2);
     restList = aList;
     
-    SpikesX = int16.empty(0, 2*W+1);
-    SpikesY = int16.empty(0, 2*W+1);
+    SpikesX = int32.empty(0, 2*W+1);
+    SpikesY = double.empty(0, 2*W+1);
     
     largest = 1;
     % 降序排序，并标明原序列中的索引位置
