@@ -1,15 +1,15 @@
 function test_vrleg_movement()
     %---Random to display the five movements
     global world_handles;	world_handles = vr_leg();
-    global speed;           speed = 0.02;%单次变换的时间间隔，数值越小，变化越快
+    global speed;           speed = 0.001;%单次变换的时间间隔，数值越小，变化越快
     
-    Move_right_kuanguanjie_waizhan(0.15, -0.01, -0.6);
-    Move_right_kuanguanjie_neishou(0.15, 0.01, 0.5);
+    Move_right_kuanguanjie_waizhan(0.15, -0.1, -0.6);
+    Move_right_kuanguanjie_neishou(0.15, 0.1, 0.5);
     
-    Move_right_xiguanjie(1, -0.02, 0);
-    Move_right_xiguanjie(1, 0.02, 2);
-    Move_right_jiao(0, -0.01, -0.5);
-    Move_right_jiao(0, 0.01, 0.5);
+    Move_right_xiguanjie(1, -0.1, 0);
+    Move_right_xiguanjie(1, 0.2, 2);
+    Move_right_jiao(0, -0.1, -0.5);
+    Move_right_jiao(0, 0.1, 0.5);
 
     
 
