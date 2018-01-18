@@ -31,8 +31,8 @@ classdef ViewRPS < handle
 		function obj = ViewRPS(modelObj)
 			% - Initialize [fE]
 			obj.fE.featuresCell = {'RMS', 'MAV'};
-			obj.fE.LW = 128;
-			obj.fE.LI = 64;
+			obj.fE.LW = 512;
+			obj.fE.LI = 128;
 			addpath('../../Matlab');
 			obj.model = modelObj;
 			obj.handles = InitFigure(obj);
@@ -213,9 +213,9 @@ function handles = InitFigure(obj)
 							  'Title', 'Motion Selection', ...
 							  'Units', 'normalized', ...
 							  'Position', [0.47 0.02 0.47 0.95]);
-	valueMotionCheckbox = {false, 'Snooze', false, 'Open',   false, 'Grasp'; ...
-						   false, 'Index',  false, 'Middle', false, 'Rock'; ...
-						   false, 'Paper',  false, 'Scissor',false, 'Unknow'};
+	valueMotionCheckbox = {false, 'Stand', false, 'HipIn',   false, 'HipOut'; ...
+						   false, 'KneeUp',  false, 'KneeDown', false, 'AnkleUp'; ...
+						   false, 'AnkleDown',  false, 'Unknow',false, 'Unknow'};
 	% ColumnWidth = 50;
 	CW = 50;
 	hMotionCheckboxTable = uitable('Parent', hPanelMotion, ...
@@ -236,14 +236,20 @@ function handles = InitFigure(obj)
 								'Callback', {@Callback_ButtonRealTime, obj});
 	handles.hButtonRealTime = hButtonRealTime;
 	% -- Level two: layout of [hPanelEMGAxes]
-	nCh = 4;
-	dWidth = 0.95/nCh;
-	for ch=1:nCh
+	nCh = 6;
+	dWidth = 0.95/nCh*2;
+	for ch=1:3
 		handles.hAxesEMG(ch) = axes('Parent', handles.hPanelEMGAxes, ...
 									'Units', 'normalized', ...
-									'Position', [0.02 1-dWidth*ch 0.9 dWidth*0.86]);
+									'Position', [0.02 1-dWidth*ch 0.45 dWidth*0.86]);
 		handles.hPlotsEMG(ch) = plot(handles.hAxesEMG(ch), 0, '-y', 'LineWidth', 1);
 	end	
+	for ch=4:6
+		handles.hAxesEMG(ch) = axes('Parent', handles.hPanelEMGAxes, ...
+									'Units', 'normalized', ...
+									'Position', [0.52 1-dWidth*ch 0.45 dWidth*0.86]);
+		handles.hPlotsEMG(ch) = plot(handles.hAxesEMG(ch), 0, '-y', 'LineWidth', 1);
+	end
 	handles.hAxesProgress = axes('Parent', handles.hPanelEMGAxes, ...
 								 'Units', 'normalized', ...
 								 'Position', [0.96 0.03 0.02 0.95], ...
@@ -308,9 +314,9 @@ end
 function CellEditCallback_Motion(source, eventdata, obj)
 	handles = obj.handles;
 	trueValueMotion = cell2mat(handles.hMotionCheckboxTable.Data(:, 1:2:end));
-	strMotion = {'Snooze', 'Open', 'Grasp', ...
-				 'Index', 'Middle', 'Rock', ...
-				 'Paper', 'Scissor', 'Unknow'};
+	strMotion = {'Stand', 'HipIn', 'HipOut', ...
+				 'KneeUp', 'KneeDown', 'AnkleUp', ...
+				 'AnkleDown', 'Unknow', 'Unknow'};
 	strAllSelected = strMotion(reshape(trueValueMotion', 1, []));
 	handles.strAllSelected = strAllSelected;
 
@@ -380,8 +386,8 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% obj.classifier.addlistener('eventJudged', @)
 
 	% -- Connected to Devices/Hand
-	addpath('../../Devices/Ghand');
-	obj.device = InitGHand(5); % - COM5
+	addpath('../../Devices/VRLower');
+	obj.device = InitVRLower; 
 	% ------------------- [reatime pattern recognition]
 	obj.model.addlistener('eventEMGChanged', @obj.RealtimePR);
 	% obj.model.Start([obj.handles.chSelect]);
