@@ -50,7 +50,8 @@ classdef ViewRPS < handle
 	        		obj.dataAxesEMG = [obj.dataAxesEMG(:, size(obj.model.dataEMG,2)+1:end), ...
 	        						   obj.model.dataEMG];
 	        	end
-	        	for ch=1:min(length(obj.model.chEMG), 4)
+	        	% - Update all EMG rawdata on all the axes. 
+	        	for ch=1:length(obj.model.chEMG)
 	        		% obj.dataEMG = dataEMG(obj.chEMG, :);	
 	        		plot(obj.handles.hAxesEMG(ch), obj.dataAxesEMG(ch, :));
 	        		drawnow;
@@ -61,7 +62,7 @@ classdef ViewRPS < handle
 		function obj = Write2FilesEMG(obj, source, event)
 			if obj.flagEMGWrite2Files == 1
 				% - How much time sampling data are stored?
-				T = 3;
+				T = 3; % t-sec = T * nCh
 				if(length(obj.dataEmgStored) < T*2000*length(obj.model.chEMG))
 					obj.dataEmgStored = [obj.dataEmgStored, obj.model.dataEMG];
 					p = length(obj.dataEmgStored)/(T*2000*length(obj.model.chEMG));
@@ -386,7 +387,8 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% obj.classifier = SVM(params);
 	% obj.classifier.trainM(sampleCell);
 	obj.classifier.SimpleTrainM(sampleCell);
-	% -- how to notify image refreshing and HandObj---------------------[][][][][][][][]
+	% ----------------------------------------------you should show off the accuracy of Training/Testing dataset.
+	% ----------------------------------------------So improve the class of LDA.
 	% obj.classifier.addlistener('eventJudged', @)
 
 	% -- Connected to Devices/Hand
