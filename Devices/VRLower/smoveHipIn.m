@@ -1,4 +1,4 @@
-function StateHipIn(world_handles) 
+function smoveHipIn(world_handles) 
 	J0 = 0.15;
 	J1 = 0.1;
 	J2 = 0.5;
