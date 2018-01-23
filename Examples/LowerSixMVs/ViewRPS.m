@@ -100,7 +100,7 @@ classdef ViewRPS < handle
 				else
 					obj.rowResult = [obj.rowResult(2:end), nResult];
 					nFinal = ceil(median(obj.rowResult));
-					strResult = obj.handles.strAllSelected{nFinal};
+					strResult = obj.handles.strAllSelected{nFinal}
 					% - Refreshing pictures
 					% ------- No pictures
 					% hPicture = imread(['../../MATLAB/Pictures/', strResult, '.jpg']);
