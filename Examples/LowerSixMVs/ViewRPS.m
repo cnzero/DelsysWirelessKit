@@ -95,7 +95,7 @@ classdef ViewRPS < handle
 				% - classifier judge
 				% - output test result
 				nResult = obj.classifier.Judge(x); 
-				if length(obj.rowResult) < 3
+				if length(obj.rowResult) < 4
 					obj.rowResult = [obj.rowResult, nResult];
 				else
 					obj.rowResult = [obj.rowResult(2:end), nResult];
