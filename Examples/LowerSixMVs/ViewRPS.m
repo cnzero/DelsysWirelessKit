@@ -87,8 +87,7 @@ classdef ViewRPS < handle
 			else
 				obj.dataEmgRealTime = [obj.dataEmgRealTime(:,size(obj.model.dataEMG,2)+1:end), ...
 									   obj.model.dataEMG];
-				% - Yes, enough ->
-				% - features extraction
+				% - Yes, enough ->features extraction
 				x = Rawdata2SampleMatrix(obj.dataEmgRealTime(:, 1:obj.fE.LW), obj.fE);
 				% x = Rawdata2SampleMatrix(obj.dataEmgRealTime, obj.fE);
 				% - x, not just only one sample point, 
@@ -109,7 +108,7 @@ classdef ViewRPS < handle
 					% drawnow;
 					% --------No pictures
 
-					% - Send commands to Hand
+					% - Send commands to ControlObj, such as Hand, or VRobject.
 					hFunctionMove = str2func(['smove', strResult]);
 					hFunctionMove(obj.device);
 				end
@@ -387,7 +386,8 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% obj.classifier = SVM(params);
 	% obj.classifier.trainM(sampleCell);
 	obj.classifier.SimpleTrainM(sampleCell);
-	% ----------------------------------------------you should show off the accuracy of Training/Testing dataset.
+	disp('Accuracy of the Training Set');
+	obj.classifier.GetAccuracy(sampleCell)
 	% ----------------------------------------------So improve the class of LDA.
 	% obj.classifier.addlistener('eventJudged', @)
 
