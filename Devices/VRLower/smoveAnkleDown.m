@@ -7,8 +7,11 @@ function smoveAnkleDown(world_handles)
     youjiao = world_handles.youjiao;
     youdatui = world_handles.youdatui;     youdatui.rotation   = [1 0 0 -1];
     youxiaotui = world_handles.youxiaotui; youxiaotui.rotation = [1 0 0 1];
-    for i=J0:J1:J2
-        youjiao.rotation = [1 0 0 i];
-        pause(speed);
-    end 
+    
+    % - It is a STATE, rather than a on-going course.
+    youjiao.rotation = [1 0 0 J2];
+%     for i=J0:J1:J2
+%         youjiao.rotation = [1 0 0 i];
+%         pause(speed);
+%     end 
 end

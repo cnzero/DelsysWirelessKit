@@ -10,9 +10,13 @@ function smoveHipIn(world_handles)
 
     youjiao  = world_handles.youjiao ;        
     youjiao.rotation = [1 0 0 0.3];
-    for i=J0:J1:J2
-        youdatui.rotation = [0 -1 0 i];
-        youdatui.rotation = youdatui.rotation + [0 0 1 i];
-        pause(3*speed);
-    end
+    
+    % - It is a STATE, rather than a on-going course.
+    youdatui.rotation = [0 -1 0 J2];
+    youdatui.rotation = youdatui.rotation + [0 0 1 J2];
+%     for i=J0:J1:J2
+%         youdatui.rotation = [0 -1 0 i];
+%         youdatui.rotation = youdatui.rotation + [0 0 1 i];
+%         pause(3*speed);
+%     end
 end
