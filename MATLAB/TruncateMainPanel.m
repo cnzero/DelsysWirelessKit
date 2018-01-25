@@ -1,8 +1,8 @@
 function TruncateMainPanel()
 	global MP_handles;
 
-	load('Ye.mat', 'Data');
-	MP_handles.Data =Data;
+	% load('Ye.mat', 'Data');
+	% MP_handles.Data =Data;
 	%--Data{x, x, x, x, x}
 	%       |  |  |  |   |
 	%       |  |  |  |   1,Main_Channel_1 
