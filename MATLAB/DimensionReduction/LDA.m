@@ -15,6 +15,7 @@ classdef LDA < handle
 
 		% - accuracy
 		accuracyMatrix = []      % -- size(nClasses, nClasses)
+		accuracyLabel
 
 	end
 
@@ -117,7 +118,7 @@ classdef LDA < handle
 					nRight = nRight + 1;
 				end
 			end
-			obj.accuracyTrain = nRight/L; 
+			obj.accuracyLabel = nRight/L; 
 		end
 	end
 end
