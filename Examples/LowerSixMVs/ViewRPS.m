@@ -100,7 +100,7 @@ classdef ViewRPS < handle
 				else
 					obj.rowResult = [obj.rowResult(2:end), nResult];
 					nFinal = ceil(median(obj.rowResult));
-					strResult = obj.handles.strAllSelected{nFinal}
+					strResult = obj.handles.strAllSelected{nFinal};
 					% - Refreshing pictures
 					% ------- No pictures
 					% hPicture = imread(['../../MATLAB/Pictures/', strResult, '.jpg']);
@@ -385,9 +385,12 @@ function Callback_ButtonStartTrain(source, eventdata, obj)
 	% obj.classifier = PCA(n_components);
 	% obj.classifier = SVM(params);
 	% obj.classifier.trainM(sampleCell);
-	obj.classifier.SimpleTrainM(sampleCell);
-	disp('Accuracy of the Training Set');
-	obj.classifier.GetAccuracy(sampleCell)
+	[trainCell, testCell] = SplitToTrainTestCells(sampleCell);
+	obj.classifier.SimpleTrainM(trainCell);
+	disp('Accuracy of the Training Set:');
+	obj.classifier.GetAccuracy(trainCell)
+	disp('Accuracy of the Testing Set:');
+	obj.classifier.GetAccuracy(testCell)
 	% ----------------------------------------------So improve the class of LDA.
 	% obj.classifier.addlistener('eventJudged', @)
 
